@@ -4,9 +4,35 @@ from sensor_msgs.msg import Joy
 from std_msgs.msg import String
 
 def callback(data):
-  rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.header)
-    
-
+#  rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.header)
+    if data.buttons[5] == 1:
+        drone.takeoff()
+    elif data.buttons[4] == 1:
+        drone.land()
+    elif data.buttons[3] == 1:
+        drone.emergency()
+    elif data.axes[1] > 0.5:
+        drone.ascend()
+    elif data.axes[1] < -0.5:
+        drone.descend()
+    elif data.axes[0] < -0.5:
+        drone.turn_right()
+    elif data.axes[0] > 0.5:
+        drone.turn_left()
+    elif data.axes[4] > 0.5:
+        drone.move_fw()
+    elif data.axes[4] < -0.5:
+        drone.move_bw()
+    elif data.axes[3] < -0.5:
+        drone.move_right()
+    elif data.axes[3] > 0.5:
+        drone.move_left()
+#    elif event == ord('+'):
+#        drone.incr_speed()
+#    elif event == ord('-'):
+#        drone.decr_speed()
+#    elif event == ord('x'):
+#        drone.disconnect()
 import curses
 import time
 import threading
@@ -21,8 +47,8 @@ S_CONNECTING = 1
 S_CONNECTED = 2
 
 #DRONEMAC = 'E0:14:D6:A9:3D:28'
-DRONEMAC = 'E0:14:99:00:3D:4F'   # Drone 01
-#DRONEMAC = 'E0:14:7B:97:3D:4F'   # Drone 02
+#DRONEMAC = 'E0:14:99:00:3D:4F'   # Drone 01
+DRONEMAC = 'E0:14:7B:97:3D:4F'   # Drone 02
 
 
 CB_MSG = 0
@@ -205,7 +231,7 @@ def main_loop(stdscr):
 
 if __name__ == '__main__':
     rospy.init_node('minidrone_node', anonymous=True)
-    rospy.Subscriber("xbox360", Joy, callback)
+    rospy.Subscriber("/joy", Joy, callback)
     global drone, state, message, config, speed, battery
     state = S_DISCONNECTED
     message = speed = battery = ''
